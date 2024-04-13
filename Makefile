@@ -20,8 +20,8 @@ WORKDIR?=workdir
 WORKDIR_COBALT?=$(WORKDIR)/cobalt-$(BUILD_COBALT_VERSION)
 
 BUILD_VERSION?=
-BUILD_COBALT_PARALLEL?=
-BUILD_COBALT_TYPE?=gold
+BUILD_COBALT_PARALLEL?=3
+BUILD_COBALT_TYPE?=qa
 BUILD_COBALT_VERSION=$(word 1, $(subst -, ,$(BUILD_VERSION)))
 BUILD_COBALT_SB_API_VERSION=$(word 2, $(subst -, ,$(BUILD_VERSION)))
 BUILD_COBALT_ARCHITECTURE?=arm-softfp
@@ -113,17 +113,19 @@ $(WORKDIR)/ipk/content/app/cobalt/content/web/adblock: $(BUILD_WEBOS_YOUTUBE_APP
 
 	rm -f $(WORKDIR)/ipk/drm.nfz
 	rm -f $(WORKDIR)/ipk/use_shared_package
-	sed -i 's/YouTube/YouTube Cobalt AdBlock/g' $(WORKDIR)/ipk/appinfo.json
+	sed -i 's/YouTube/YouTube/g' $(WORKDIR)/ipk/appinfo.json
 	jq 'del(.fileSystemType)' < $(WORKDIR)/ipk/appinfo.json > $(WORKDIR)/ipk/appinfo2.json
 	mv $(WORKDIR)/ipk/appinfo2.json $(WORKDIR)/ipk/appinfo.json
+	jq '.inspectable = true' < $(WORKDIR)/ipk/appinfo.json > $(WORKDIR)/ipk/appinfo2.json
+	mv $(WORKDIR)/ipk/appinfo2.json $(WORKDIR)/ipk/appinfo.json
 
-	cp assets/icon.png $(WORKDIR)/ipk/$$(jq -r '.icon' < $(WORKDIR)/ipk/appinfo.json)
-	cp assets/mediumLargeIcon.png $(WORKDIR)/ipk/$$(jq -r '.mediumLargeIcon' < $(WORKDIR)/ipk/appinfo.json)
-	cp assets/largeIcon.png $(WORKDIR)/ipk/$$(jq -r '.largeIcon' < $(WORKDIR)/ipk/appinfo.json)
-	cp assets/extraLargeIcon.png $(WORKDIR)/ipk/$$(jq -r '.extraLargeIcon' < $(WORKDIR)/ipk/appinfo.json)
-	cp assets/playIcon.png $(WORKDIR)/ipk/$$(jq -r '.playIcon' < $(WORKDIR)/ipk/appinfo.json)
-	cp assets/imageForRecents.png $(WORKDIR)/ipk/$$(jq -r '.imageForRecents' < $(WORKDIR)/ipk/appinfo.json)
-	cp assets/imageForRecents.png $(WORKDIR)/ipk/$$(jq -r '.imageForRecents' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/icon.png $(WORKDIR)/ipk/$$(jq -r '.icon' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/mediumLargeIcon.png $(WORKDIR)/ipk/$$(jq -r '.mediumLargeIcon' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/largeIcon.png $(WORKDIR)/ipk/$$(jq -r '.largeIcon' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/extraLargeIcon.png $(WORKDIR)/ipk/$$(jq -r '.extraLargeIcon' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/playIcon.png $(WORKDIR)/ipk/$$(jq -r '.playIcon' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/imageForRecents.png $(WORKDIR)/ipk/$$(jq -r '.imageForRecents' < $(WORKDIR)/ipk/appinfo.json)
+#	cp assets/imageForRecents.png $(WORKDIR)/ipk/$$(jq -r '.imageForRecents' < $(WORKDIR)/ipk/appinfo.json)
 	test -d $(WORKDIR)/ipk/content/app/cobalt/content/web/youtube || mkdir -p $(WORKDIR)/ipk/content/app/cobalt/content/web/youtube
 	test -f $(WORKDIR)/ipk/content/app/cobalt/content/web/youtube/splash.html || cp assets/youtube-splash.html $(WORKDIR)/ipk/content/app/cobalt/content/web/youtube/splash.html
 
@@ -174,6 +176,7 @@ docker-make.%:
 # Example of usage
 # make cobalt-bin/23.lts.4-12/libcobalt.so
 # make cobalt-bin/23.lts.4-12-x64x11/cobalt
+# make cobalt-bin/23.lts.4-14/libcobalt.so
 
 clean-$(WORKDIR)/cobalt-%:
 	cd $(WORKDIR)/cobalt-$* && git reset && git checkout . && git clean -d -f
